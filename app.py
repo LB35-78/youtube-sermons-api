@@ -16,7 +16,7 @@ CHANNEL_ID = "UCXe0rNb7t4_FKtH92-lJOqw"
 app = FastAPI(
     title="YouTube Sermons API",
     description="Lists channel videos and returns transcripts (or titles) for GPT.",
-    version="1.1.0",
+    version="1.2.0",
 )
 
 # Allow all origins (needed for GPT Action calls)
@@ -53,9 +53,10 @@ def _get_transcript_text(video_id: str, languages_priority: List[str]) -> Dict[s
         text = " ".join([seg.get("text", "").strip() for seg in transcript if seg.get("text")])
         return {"video_id": video_id, "text": text, "has_transcript": True}
     except (TranscriptsDisabled, NoTranscriptFound, VideoUnavailable):
+        # Known exceptions → no transcript
         return {"video_id": video_id, "text": "", "has_transcript": False}
     except Exception as e:
-        # Catch-all safety (in case library changes again)
+        # Catch-all safety (if the library changes again)
         return {"video_id": video_id, "text": "", "has_transcript": False, "error": str(e)}
 
 # -------- Models --------
